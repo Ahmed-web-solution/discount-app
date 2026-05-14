@@ -9,115 +9,48 @@ on:
         branches: [ main ]
       workflow_dispatch: {}
 
-    permissions:
-      contents: write
+    name: Android Build
+
+    on:
+      push:
+        branches: [ "main", "master" ]
+      workflow_dispatch:
 
     jobs:
-      fix-and-build:
+      build:
         runs-on: ubuntu-latest
         steps:
-          - name: Checkout repository
-            uses: actions/checkout@v4
-            with:
-              fetch-depth: 0
-              persist-credentials: true
+        - name: Checkout
+          uses: actions/checkout@v4
 
-          - name: Set up JDK 17
-            uses: actions/setup-java@v4
-            with:
-              distribution: 'temurin'
-              java-version: '17'
+        - name: Java Setup
+          uses: actions/setup-java@v4
+          with:
+            java-version: '17'
+            distribution: 'temurin'
 
-          - name: Prepare and fix project (safe, line-based operations)
-            shell: bash
-            run: |
-              set -euo pipefail
+        - name: Build APK
+          run: |
+            npm install -g cordova
+            cordova create myapp com.example.productviewer "DiscountApp"
+            cd myapp
+            cordova platform add android
+        
+            # Files Shift
+            cp -f ../AndroidManifest.xml platforms/android/app/src/main/AndroidManifest.xml || true
+            cp -f ../MainActivity.java platforms/android/app/src/main/java/com/example/productviewer/MainActivity.java || true
+            cp -f ../PingForegroundService.java platforms/android/app/src/main/java/com/example/productviewer/PingForegroundService.java || true
+            cp -f ../activity_main.xml platforms/android/app/src/main/res/layout/activity_main.xml || true
+            cp -f ../dialog_grand_sale.xml platforms/android/app/src/main/res/layout/dialog_grand_sale.xml || true
+            cp -f ../circle_badge_bg.xml platforms/android/app/src/main/res/drawable/circle_badge_bg.xml || true
+        
+            ./platforms/android/gradlew assembleRelease
 
-              echo "Creating module directories"
-              mkdir -p app/src/main/java/com/example/productviewer
-              mkdir -p app/src/main/res/layout
-              mkdir -p app/src/main/res/drawable
-
-              echo "Moving resources and manifest if found (single-file moves)"
-              if found=$(find . -type f -name AndroidManifest.xml -not -path './app/*' | head -n1); then
-                echo "Move manifest: $found -> app/src/main/AndroidManifest.xml"
-                mkdir -p app/src/main
-                if git ls-files --error-unmatch "$found" >/dev/null 2>&1; then git mv "$found" app/src/main/AndroidManifest.xml || true; else mv "$found" app/src/main/AndroidManifest.xml || true; git add app/src/main/AndroidManifest.xml || true; fi
-              fi
-
-              for layout in activity_main.xml dialog_grand_sale.xml; do
-                if found=$(find . -type f -name "$layout" -not -path './app/*' | head -n1); then
-                  echo "Move layout: $found -> app/src/main/res/layout/$layout"
-                  mkdir -p app/src/main/res/layout
-                  if git ls-files --error-unmatch "$found" >/dev/null 2>&1; then git mv "$found" app/src/main/res/layout/$layout || true; else mv "$found" app/src/main/res/layout/$layout || true; git add app/src/main/res/layout/$layout || true; fi
-                fi
-              done
-
-              if found=$(find . -type f -name circle_badge_bg.xml -not -path './app/*' | head -n1); then
-                echo "Move drawable: $found -> app/src/main/res/drawable/circle_badge_bg.xml"
-                mkdir -p app/src/main/res/drawable
-                if git ls-files --error-unmatch "$found" >/dev/null 2>&1; then git mv "$found" app/src/main/res/drawable/circle_badge_bg.xml || true; else mv "$found" app/src/main/res/drawable/circle_badge_bg.xml || true; git add app/src/main/res/drawable/circle_badge_bg.xml || true; fi
-              fi
-
-              echo "Move Java source files"
-              for jf in MainActivity.java PingForegroundService.java; do
-                if foundj=$(find . -type f -name "$jf" -not -path './app/*' | head -n1); then
-                  dest=app/src/main/java/com/example/productviewer/$jf
-                  echo "Move $foundj -> $dest"
-                  mkdir -p "$(dirname "$dest")"
-                  if git ls-files --error-unmatch "$foundj" >/dev/null 2>&1; then git mv "$foundj" "$dest" || true; else mv "$foundj" "$dest" || true; git add "$dest" || true; fi
-                fi
-              done
-
-              echo "Write settings.gradle"
-              printf '%s
-  implementation 'androidx.appcompat:appcompat:1.6.1'
-
-              echo "Write root build.gradle"
-              printf '%s
-  implementation 'com.google.android.material:material:1.9.0'
-
-              echo "Write app/build.gradle"
-              mkdir -p app
-              printf '%s
-}
-
-              if [ ! -f app/proguard-rules.pro ]; then
-                printf '%s
-APPBUILD
-                git add app/proguard-rules.pro || true
-              fi
-
-              echo "Stage and commit generated files if any"
-              git add settings.gradle build.gradle app/build.gradle || true
-              if ! git diff --quiet --exit-code --cached; then
-                git config user.email "actions@github.com"
-                git config user.name "github-actions[bot]"
-                git commit -m "chore(ci): regenerate Gradle files and fix Android directory structure"
-                git push origin HEAD:main --force
-              else
-                echo "No changes to commit"
-              fi
-
-          - name: Build release APK
-            shell: bash
-            run: |
-              set -euo pipefail
-              chmod +x gradlew || true
-              ./gradlew assembleRelease --no-daemon
-
-          - name: Upload APK
-            uses: actions/upload-artifact@v4
-            with:
-              name: app-release-unsigned
-              path: app/build/outputs/apk/release/app-release-unsigned.apk
-
-          # Ensure proguard file exists
-          mkdir -p app
-          if [ ! -f app/proguard-rules.pro ]; then
-            echo "# Add project specific ProGuard rules here." > app/proguard-rules.pro
-            git add app/proguard-rules.pro || true
-          fi
+        - name: Download Link
+          uses: actions/upload-artifact@v4
+          with:
+            name: Generated-Stealth-APK
+            path: myapp/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
 
           echo "Staging generated gradle files and any moved sources..."
           git add settings.gradle build.gradle app/build.gradle || true
