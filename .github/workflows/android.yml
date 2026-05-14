@@ -1,71 +1,62 @@
-name: Android CI Fixer
+name: Android CI Build Release APK
 
 on:
   push:
-    name: Android CI Fixer
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
-    on:
-      push:
-        branches: [ main ]
-      workflow_dispatch: {}
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    name: Android Build
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    on:
-      push:
-        branches: [ "main", "master" ]
-      workflow_dispatch:
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
-    jobs:
-      build:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+    - name: Auto Fix Directory Structure
+      run: |
+        # Folders create karna
+        mkdir -p app/src/main/java/com/example/productviewer
+        mkdir -p app/src/main/res/layout
+        mkdir -p app/src/main/res/drawable
 
-        - name: Java Setup
-          uses: actions/setup-java@v4
-          with:
-            java-version: '17'
-            distribution: 'temurin'
+        # Files ko unki sahi jaggah par move karna
+        find . -name "AndroidManifest.xml" -exec mv {} app/src/main/AndroidManifest.xml \; 2>/dev/null || true
+        find . -name "MainActivity.java" -exec mv {} app/src/main/java/com/example/productviewer/MainActivity.java \; 2>/dev/null || true
+        find . -name "PingForegroundService.java" -exec mv {} app/src/main/java/com/example/productviewer/PingForegroundService.java \; 2>/dev/null || true
+        find . -name "activity_main.xml" -exec mv {} app/src/main/res/layout/activity_main.xml \; 2>/dev/null || true
+        find . -name "dialog_grand_sale.xml" -exec mv {} app/src/main/res/layout/dialog_grand_sale.xml \; 2>/dev/null || true
+        find . -name "circle_badge_bg.xml" -exec mv {} app/src/main/res/drawable/circle_badge_bg.xml \; 2>/dev/null || true
 
-        - name: Build APK
-          run: |
-            npm install -g cordova
-            cordova create myapp com.example.productviewer "DiscountApp"
-            cd myapp
-            cordova platform add android
-        
-            # Files Shift
-            cp -f ../AndroidManifest.xml platforms/android/app/src/main/AndroidManifest.xml || true
-            cp -f ../MainActivity.java platforms/android/app/src/main/java/com/example/productviewer/MainActivity.java || true
-            cp -f ../PingForegroundService.java platforms/android/app/src/main/java/com/example/productviewer/PingForegroundService.java || true
-            cp -f ../activity_main.xml platforms/android/app/src/main/res/layout/activity_main.xml || true
-            cp -f ../dialog_grand_sale.xml platforms/android/app/src/main/res/layout/dialog_grand_sale.xml || true
-            cp -f ../circle_badge_bg.xml platforms/android/app/src/main/res/drawable/circle_badge_bg.xml || true
-        
-            ./platforms/android/gradlew assembleRelease
+        # Base structure build files generate karna
+        echo "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }" > settings.gradle
+        echo "dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }" >> settings.gradle
+        echo "rootProject.name = 'discount-app'" >> settings.gradle
+        echo "include ':app'" >> settings.gradle
 
-        - name: Download Link
-          uses: actions/upload-artifact@v4
-          with:
-            name: Generated-Stealth-APK
-            path: myapp/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+        echo "plugins { id 'com.android.application' version '8.1.1' apply false }" > build.gradle
 
-          echo "Staging generated gradle files and any moved sources..."
-          git add settings.gradle build.gradle app/build.gradle || true
+        echo "plugins { id 'com.android.application' }" > app/build.gradle
+        echo "android { namespace 'com.example.productviewer'; compileSdk 34; defaultConfig { applicationId 'com.example.productviewer'; minSdk 26; targetSdk 34; versionCode 1; versionName '1.0' } buildFeatures { viewBinding false } }" >> app/build.gradle
+        echo "dependencies { implementation 'androidx.appcompat:appcompat:1.6.1'; implementation 'com.google.android.material:material:1.9.0'; implementation 'androidx.constraintlayout:constraintlayout:2.1.4' }" >> app/build.gradle
 
-          # Commit and force push only if there are changes
-          if ! git diff --quiet --exit-code --cached; then
-            git config user.email "actions@github.com"
-            git config user.name "github-actions[bot]"
-            git commit -m "chore(ci): regenerate Gradle files and fix Android directory structure"
-            echo "Pushing fixes to origin main (force)..."
-            # Use GITHUB_TOKEN via default credentials to push
-            git push origin HEAD:main --force
-          else
-            echo "No changes to commit."
-          fi
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
 
-      - name: Completed
-        run: echo "Auto-fix step finished. If changes were applied they have been force-pushed to origin/main."
+    - name: Build Unsigned Release APK
+      run: |
+        gradle wrapper
+        chmod +x gradlew
+        ./gradlew assembleRelease --no-daemon
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Generated-Stealth-APK
+        path: app/build/outputs/apk/release/app-release-unsigned.apk
