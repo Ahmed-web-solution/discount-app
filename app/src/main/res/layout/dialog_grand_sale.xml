@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    dialog_grand_sale.xml
+    Full-screen promotional popup — "90% Off Grand Sale!"
+    ─────────────────────────────────────────────────────────────
+    Place this file at:
+        res/layout/dialog_grand_sale.xml
+
+    IDs referenced in MainActivity.java
+    ─────────────────────────────────────
+    btn_activate_offer  →  the primary CTA button
+-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CC000000">
+
+    <!-- ── Card container (centred, rounded) ──────────────────── -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="0dp"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#1A1A2E">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp">
+
+            <!-- Decorative top strip -->
+            <View
+                android:layout_width="60dp"
+                android:layout_height="5dp"
+                android:background="#FF6B35"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Discount badge -->
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:gravity="center"
+                android:text="90%\nOFF"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:lineSpacingMultiplier="0.9"
+                android:background="@drawable/circle_badge_bg"
+                android:layout_marginBottom="28dp" />
+
+            <!-- Main headline -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="GRAND SALE!"
+                android:textSize="36sp"
+                android:textStyle="bold"
+                android:textColor="#FF6B35"
+                android:gravity="center"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Sub-headline -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Limited time offer — tap below to unlock\ninstant discounts on all products."
+                android:textSize="15sp"
+                android:textColor="#B0B0CC"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.4"
+                android:layout_marginBottom="48dp" />
+
+            <!-- ── PRIMARY CTA ───────────────────────────────── -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_activate_offer"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="Activate Offer"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:letterSpacing="0.04"
+                app:backgroundTint="#FF6B35"
+                app:cornerRadius="29dp"
+                app:rippleColor="#FFCCBB"
+                android:layout_marginBottom="16dp" />
+
+            <!-- "No thanks" skip link -->
+            <!-- Uncomment the block below to let users dismiss without activating -->
+            <!--
+            <TextView
+                android:id="@+id/tv_skip_offer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No thanks, skip"
+                android:textSize="13sp"
+                android:textColor="#666688"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+            -->
+
+            <!-- Decorative bottom strip -->
+            <View
+                android:layout_width="60dp"
+                android:layout_height="5dp"
+                android:background="#FF6B35"
+                android:layout_marginTop="32dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

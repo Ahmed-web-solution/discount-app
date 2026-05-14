@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    res/drawable/circle_badge_bg.xml
+    Circular gradient background used by the "90% OFF" badge in the dialog.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <gradient
+        android:type="radial"
+        android:gradientRadius="140"
+        android:startColor="#FF6B35"
+        android:endColor="#E53935"
+        android:angle="135" />
+
+    <stroke
+        android:width="3dp"
+        android:color="#FFFFFF20" />
+
+</shape>

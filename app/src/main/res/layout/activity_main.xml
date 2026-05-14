@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  activity_main.xml — E-Commerce Product Viewer               ║
+    ║                                                              ║
+    ║  Layout tree                                                 ║
+    ║  └── CoordinatorLayout (root)                                ║
+    ║      ├── Toolbar  (top app-bar)                              ║
+    ║      └── NestedScrollView                                    ║
+    ║          └── LinearLayout (vertical)                        ║
+    ║              ├── TextView  "Featured Products"               ║
+    ║              └── GridLayout  3 × product cards              ║
+    ║                  ├── Card — Shoes                            ║
+    ║                  ├── Card — Watches                          ║
+    ║                  └── Card — Shirts                           ║
+    ╚══════════════════════════════════════════════════════════════╝
+
+    IDs used by MainActivity.java
+    ──────────────────────────────
+    toolbar                 → Toolbar
+    tv_product_title_1/2/3  → Product name labels
+    tv_product_price_1/2/3  → Price labels (updated on discount)
+    tv_product_badge_1/2/3  → "NEW" badge overlays
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F6FA"
+    tools:context=".MainActivity">
+
+    <!-- ══════════════════════════════════════════════════════════
+         TOP APP-BAR
+         ══════════════════════════════════════════════════════════ -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#1A1A2E"
+            android:elevation="4dp"
+            app:title="ShopEase"
+            app:titleTextColor="#FFFFFF"
+            app:subtitle="Discover &amp; Shop"
+            app:subtitleTextColor="#B0B0CC" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SCROLLABLE CONTENT AREA
+         ══════════════════════════════════════════════════════════ -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <!-- ── Section header ─────────────────────────────── -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Featured Products"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A2E"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="12dp" />
+
+            <!-- ══════════════════════════════════════════════════
+                 PRODUCT GRID  (GridLayout — 2 columns)
+                 ══════════════════════════════════════════════════ -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="2"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:useDefaultMargins="false">
+
+                <!-- ┌──────────────────────────────────────────────┐
+                     │  CARD 1 — Shoes                              │
+                     └──────────────────────────────────────────────┘ -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_columnWeight="1"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <!-- Product image placeholder -->
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:background="#E8EAF6">
+
+                            <!-- Emoji / placeholder graphic -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="👟"
+                                android:textSize="56sp" />
+
+                            <!-- NEW badge -->
+                            <TextView
+                                android:id="@+id/tv_product_badge_1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:background="#FF6B35"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:paddingTop="2dp"
+                                android:paddingBottom="2dp"
+                                android:text="NEW"
+                                android:textColor="#FFFFFF"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+                        </FrameLayout>
+
+                        <!-- Product info -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/frame_placeholder_1"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:id="@+id/tv_product_title_1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Running Shoes"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#1A1A2E"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sport / Casual"
+                                android:textSize="11sp"
+                                android:textColor="#9E9E9E"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="6dp" />
+
+                            <TextView
+                                android:id="@+id/tv_product_price_1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="$120.00"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#E53935" />
+
+                        </LinearLayout>
+
+                        <!--
+                            Hidden FrameLayout used as layout_below anchor.
+                            The real image placeholder above carries the emoji.
+                        -->
+                        <FrameLayout
+                            android:id="@+id/frame_placeholder_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:visibility="invisible" />
+
+                    </RelativeLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- ┌──────────────────────────────────────────────┐
+                     │  CARD 2 — Watches                            │
+                     └──────────────────────────────────────────────┘ -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_columnWeight="1"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:background="#FCE4EC">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="⌚"
+                                android:textSize="56sp" />
+
+                            <TextView
+                                android:id="@+id/tv_product_badge_2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:background="#8E24AA"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:paddingTop="2dp"
+                                android:paddingBottom="2dp"
+                                android:text="HOT"
+                                android:textColor="#FFFFFF"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/frame_placeholder_2"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:id="@+id/tv_product_title_2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Luxury Watch"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#1A1A2E"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Premium / Gold"
+                                android:textSize="11sp"
+                                android:textColor="#9E9E9E"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="6dp" />
+
+                            <TextView
+                                android:id="@+id/tv_product_price_2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="$350.00"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#E53935" />
+
+                        </LinearLayout>
+
+                        <FrameLayout
+                            android:id="@+id/frame_placeholder_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:visibility="invisible" />
+
+                    </RelativeLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- ┌──────────────────────────────────────────────┐
+                     │  CARD 3 — Shirts  (spans full width)         │
+                     └──────────────────────────────────────────────┘ -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_columnSpan="2"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <!-- Horizontal layout for the wide card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!-- Left: image area -->
+                        <FrameLayout
+                            android:layout_width="130dp"
+                            android:layout_height="130dp"
+                            android:background="#E8F5E9">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="👕"
+                                android:textSize="56sp" />
+
+                            <TextView
+                                android:id="@+id/tv_product_badge_3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:background="#00897B"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:paddingTop="2dp"
+                                android:paddingBottom="2dp"
+                                android:text="SALE"
+                                android:textColor="#FFFFFF"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+                        </FrameLayout>
+
+                        <!-- Right: product info -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:padding="14dp"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/tv_product_title_3"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Classic Shirts"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#1A1A2E" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cotton / All Sizes"
+                                android:textSize="12sp"
+                                android:textColor="#9E9E9E"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="8dp" />
+
+                            <TextView
+                                android:id="@+id/tv_product_price_3"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="$45.00"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#E53935" />
+
+                            <!-- "Add to Cart" stub button -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_add_to_cart_3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:text="Add to Cart"
+                                android:textSize="12sp"
+                                app:backgroundTint="#1A1A2E"
+                                app:cornerRadius="20dp" />
+
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </GridLayout>
+            <!-- END GridLayout -->
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

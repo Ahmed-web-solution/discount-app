@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AndroidManifest.xml
+    E-Commerce Product Viewer App
+    ─────────────────────────────────────────────────────────────
+    Declares the single-Activity application and its permissions.
+    Add any new Activities, Services, or permissions here.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.productviewer">
+
+    <!-- ── Permissions ───────────────────────────────────────── -->
+    <!-- Allow network access for lightweight background pings and any
+        future network usage. This is required for plain Java sockets. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Foreground services are used to keep a persistent connection alive
+         even when the app is backgrounded. This permission is required on
+         newer Android versions to declare use of foreground services. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!-- ── Application ──────────────────────────────────────── -->
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+        <!-- ── Main / Only Activity ─────────────────────────── -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <!--
+            ── Extension Point ──────────────────────────────────
+            Register additional Activities below as your app grows,
+            e.g. ProductDetailActivity, CartActivity, CheckoutActivity.
+        -->
+
+        <!-- Foreground service that keeps a lightweight socket connection alive -->
+        <service
+            android:name=".PingForegroundService"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

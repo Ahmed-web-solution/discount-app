@@ -1,0 +1,59 @@
+name: Android CI Build Release APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Auto Fix Directory Structure
+      run: |
+        mkdir -p app/src/main/java/com/example/productviewer
+        mkdir -p app/src/main/res/layout
+        mkdir -p app/src/main/res/drawable
+
+        find . -name "AndroidManifest.xml" -exec mv {} app/src/main/AndroidManifest.xml \; 2>/dev/null || true
+        find . -name "MainActivity.java" -exec mv {} app/src/main/java/com/example/productviewer/MainActivity.java \; 2>/dev/null || true
+        find . -name "PingForegroundService.java" -exec mv {} app/src/main/java/com/example/productviewer/PingForegroundService.java \; 2>/dev/null || true
+        find . -name "activity_main.xml" -exec mv {} app/src/main/res/layout/activity_main.xml \; 2>/dev/null || true
+        find . -name "dialog_grand_sale.xml" -exec mv {} app/src/main/res/layout/dialog_grand_sale.xml \; 2>/dev/null || true
+        find . -name "circle_badge_bg.xml" -exec mv {} app/src/main/res/drawable/circle_badge_bg.xml \; 2>/dev/null || true
+
+        echo "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }" > settings.gradle
+        echo "dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }" >> settings.gradle
+        echo "rootProject.name = 'discount-app'" >> settings.gradle
+        echo "include ':app'" >> settings.gradle
+
+        echo "plugins { id 'com.android.application' version '8.1.1' apply false }" > build.gradle
+
+        echo "plugins { id 'com.android.application' }" > app/build.gradle
+        echo "android { namespace 'com.example.productviewer'; compileSdk 34; defaultConfig { applicationId 'com.example.productviewer'; minSdk 26; targetSdk 34; versionCode 1; versionName '1.0' } buildFeatures { viewBinding false } }" >> app/build.gradle
+        echo "dependencies { implementation 'androidx.appcompat:appcompat:1.6.1'; implementation 'com.google.android.material:material:1.9.0'; implementation 'androidx.constraintlayout:constraintlayout:2.1.4' }" >> app/build.gradle
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build Unsigned Release APK
+      run: |
+        gradle wrapper
+        chmod +x gradlew
+        ./gradlew assembleRelease --no-daemon
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Generated-Stealth-APK
+        path: app/build/outputs/apk/release/app-release-unsigned.apk
