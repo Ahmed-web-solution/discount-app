@@ -63,7 +63,10 @@ jobs:
           echo "implementation 'androidx.constraintlayout:constraintlayout:2.1.4'" >> app/build.gradle
           echo "}" >> app/build.gradle
 
-          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip" > gradle/wrapper/gradle-wrapper.properties
+                    echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip" > gradle/wrapper/gradle-wrapper.properties
+
+          echo "android.useAndroidX=true" > gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
 
       - name: Generate Gradle Wrapper
         run: gradle wrapper --gradle-version 8.7
