@@ -27,6 +27,8 @@ jobs:
           mkdir -p app/src/main/java/com/example/productviewer
           mkdir -p app/src/main/res/layout
           mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/mipmap-hdpi
           mkdir -p gradle/wrapper
 
           find . -name "AndroidManifest.xml" -exec cp {} app/src/main/AndroidManifest.xml \; 2>/dev/null || true
@@ -36,37 +38,64 @@ jobs:
           find . -name "dialog_grand_sale.xml" -exec cp {} app/src/main/res/layout/dialog_grand_sale.xml \; 2>/dev/null || true
           find . -name "circle_badge_bg.xml" -exec cp {} app/src/main/res/drawable/circle_badge_bg.xml \; 2>/dev/null || true
 
+          # strings.xml
+          echo '<?xml version="1.0" encoding="utf-8"?>' > app/src/main/res/values/strings.xml
+          echo '<resources>' >> app/src/main/res/values/strings.xml
+          echo '    <string name="app_name">DiscountApp</string>' >> app/src/main/res/values/strings.xml
+          echo '</resources>' >> app/src/main/res/values/strings.xml
+
+          # placeholder launcher icons
+          touch app/src/main/res/mipmap-hdpi/ic_launcher.png
+          touch app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+
+          # settings.gradle
           echo "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }" > settings.gradle
           echo "dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }" >> settings.gradle
           echo "rootProject.name='discount-app'" >> settings.gradle
           echo "include ':app'" >> settings.gradle
 
+          # root build.gradle
           echo "plugins { id 'com.android.application' version '8.5.2' apply false }" > build.gradle
 
+          # app build.gradle
           echo "plugins { id 'com.android.application' }" > app/build.gradle
+          echo "" >> app/build.gradle
           echo "android {" >> app/build.gradle
-          echo "namespace 'com.example.productviewer'" >> app/build.gradle
-          echo "compileSdk 34" >> app/build.gradle
-          echo "defaultConfig {" >> app/build.gradle
-          echo "applicationId 'com.example.productviewer'" >> app/build.gradle
-          echo "minSdk 26" >> app/build.gradle
-          echo "targetSdk 34" >> app/build.gradle
-          echo "versionCode 1" >> app/build.gradle
-          echo "versionName '1.0'" >> app/build.gradle
+          echo "    namespace 'com.example.productviewer'" >> app/build.gradle
+          echo "    compileSdk 34" >> app/build.gradle
+          echo "" >> app/build.gradle
+          echo "    defaultConfig {" >> app/build.gradle
+          echo "        applicationId 'com.example.productviewer'" >> app/build.gradle
+          echo "        minSdk 26" >> app/build.gradle
+          echo "        targetSdk 34" >> app/build.gradle
+          echo "        versionCode 1" >> app/build.gradle
+          echo "        versionName '1.0'" >> app/build.gradle
+          echo "    }" >> app/build.gradle
+          echo "" >> app/build.gradle
+          echo "    buildTypes {" >> app/build.gradle
+          echo "        release {" >> app/build.gradle
+          echo "            minifyEnabled false" >> app/build.gradle
+          echo "        }" >> app/build.gradle
+          echo "    }" >> app/build.gradle
           echo "}" >> app/build.gradle
-          echo "buildTypes { release { minifyEnabled false } }" >> app/build.gradle
-          echo "}" >> app/build.gradle
-
+          echo "" >> app/build.gradle
           echo "dependencies {" >> app/build.gradle
-          echo "implementation 'androidx.appcompat:appcompat:1.6.1'" >> app/build.gradle
-          echo "implementation 'com.google.android.material:material:1.11.0'" >> app/build.gradle
-          echo "implementation 'androidx.constraintlayout:constraintlayout:2.1.4'" >> app/build.gradle
+          echo "    implementation 'androidx.appcompat:appcompat:1.6.1'" >> app/build.gradle
+          echo "    implementation 'com.google.android.material:material:1.11.0'" >> app/build.gradle
+          echo "    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'" >> app/build.gradle
           echo "}" >> app/build.gradle
 
-                    echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip" > gradle/wrapper/gradle-wrapper.properties
+          # gradle wrapper
+          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip" > gradle/wrapper/gradle-wrapper.properties
 
+          # AndroidX
           echo "android.useAndroidX=true" > gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
+
+          # remove problematic manifest attributes if present
+          sed -i 's/android:icon="@mipmap\/ic_launcher"//g' app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:roundIcon="@mipmap\/ic_launcher_round"//g' app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:label="@string\/app_name"/android:label="DiscountApp"/g' app/src/main/AndroidManifest.xml || true
 
       - name: Generate Gradle Wrapper
         run: gradle wrapper --gradle-version 8.7
