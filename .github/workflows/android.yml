@@ -28,9 +28,9 @@ jobs:
           mkdir -p app/src/main/res/layout
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/mipmap-hdpi
           mkdir -p gradle/wrapper
 
+          # Copy files
           find . -name "AndroidManifest.xml" -exec cp {} app/src/main/AndroidManifest.xml \; 2>/dev/null || true
           find . -name "MainActivity.java" -exec cp {} app/src/main/java/com/example/productviewer/MainActivity.java \; 2>/dev/null || true
           find . -name "PingForegroundService.java" -exec cp {} app/src/main/java/com/example/productviewer/PingForegroundService.java \; 2>/dev/null || true
@@ -38,65 +38,96 @@ jobs:
           find . -name "dialog_grand_sale.xml" -exec cp {} app/src/main/res/layout/dialog_grand_sale.xml \; 2>/dev/null || true
           find . -name "circle_badge_bg.xml" -exec cp {} app/src/main/res/drawable/circle_badge_bg.xml \; 2>/dev/null || true
 
-          # strings.xml
-          echo '<?xml version="1.0" encoding="utf-8"?>' > app/src/main/res/values/strings.xml
-          echo '<resources>' >> app/src/main/res/values/strings.xml
-          echo '    <string name="app_name">DiscountApp</string>' >> app/src/main/res/values/strings.xml
-          echo '</resources>' >> app/src/main/res/values/strings.xml
+          # Fix AndroidManifest
+          sed -i 's/package=\"com.example.productviewer\"//g' app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:icon=\"@mipmap\/ic_launcher\"//g' app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:roundIcon=\"@mipmap\/ic_launcher_round\"//g' app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:label=\"@string\/app_name\"/android:label=\"DiscountApp\"/g' app/src/main/AndroidManifest.xml || true
 
-          # placeholder launcher icons
-          sed -i 's/android:icon="@mipmap\/ic_launcher"//g' app/src/main/AndroidManifest.xml || true
-          sed -i 's/android:roundIcon="@mipmap\/ic_launcher_round"//g' app/src/main/AndroidManifest.xml || true
-          sed -i 's/android:label="@string\/app_name"/android:label="DiscountApp"/g' app/src/main/AndroidManifest.xml || true
+          # strings.xml
+          cat > app/src/main/res/values/strings.xml <<EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <string name="app_name">DiscountApp</string>
+          </resources>
+          EOF
 
           # settings.gradle
-          echo "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }" > settings.gradle
-          echo "dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }" >> settings.gradle
-          echo "rootProject.name='discount-app'" >> settings.gradle
-          echo "include ':app'" >> settings.gradle
+          cat > settings.gradle <<EOF
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
 
-          # root build.gradle
-          echo "plugins { id 'com.android.application' version '8.5.2' apply false }" > build.gradle
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
 
-          # app build.gradle
-          echo "plugins { id 'com.android.application' }" > app/build.gradle
-          echo "" >> app/build.gradle
-          echo "android {" >> app/build.gradle
-          echo "    namespace 'com.example.productviewer'" >> app/build.gradle
-          echo "    compileSdk 34" >> app/build.gradle
-          echo "" >> app/build.gradle
-          echo "    defaultConfig {" >> app/build.gradle
-          echo "        applicationId 'com.example.productviewer'" >> app/build.gradle
-          echo "        minSdk 26" >> app/build.gradle
-          echo "        targetSdk 34" >> app/build.gradle
-          echo "        versionCode 1" >> app/build.gradle
-          echo "        versionName '1.0'" >> app/build.gradle
-          echo "    }" >> app/build.gradle
-          echo "" >> app/build.gradle
-          echo "    buildTypes {" >> app/build.gradle
-          echo "        release {" >> app/build.gradle
-          echo "            minifyEnabled false" >> app/build.gradle
-          echo "        }" >> app/build.gradle
-          echo "    }" >> app/build.gradle
-          echo "}" >> app/build.gradle
-          echo "" >> app/build.gradle
-          echo "dependencies {" >> app/build.gradle
-          echo "    implementation 'androidx.appcompat:appcompat:1.6.1'" >> app/build.gradle
-          echo "    implementation 'com.google.android.material:material:1.11.0'" >> app/build.gradle
-          echo "    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'" >> app/build.gradle
-          echo "}" >> app/build.gradle
+          rootProject.name = "discount-app"
+          include ':app'
+          EOF
 
-          # gradle wrapper
-          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip" > gradle/wrapper/gradle-wrapper.properties
+          # Root build.gradle
+          cat > build.gradle <<EOF
+          plugins {
+              id 'com.android.application' version '8.5.2' apply false
+          }
+          EOF
 
-          # AndroidX
-          echo "android.useAndroidX=true" > gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
+          # app/build.gradle
+          cat > app/build.gradle <<EOF
+          plugins {
+              id 'com.android.application'
+          }
 
-          # remove problematic manifest attributes if present
-          sed -i 's/android:icon="@mipmap\/ic_launcher"//g' app/src/main/AndroidManifest.xml || true
-          sed -i 's/android:roundIcon="@mipmap\/ic_launcher_round"//g' app/src/main/AndroidManifest.xml || true
-          sed -i 's/android:label="@string\/app_name"/android:label="DiscountApp"/g' app/src/main/AndroidManifest.xml || true
+          android {
+              namespace 'com.example.productviewer'
+              compileSdk 34
+
+              defaultConfig {
+                  applicationId "com.example.productviewer"
+                  minSdk 26
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+
+              buildTypes {
+                  release {
+                      minifyEnabled false
+                  }
+              }
+          }
+
+          dependencies {
+              implementation 'androidx.appcompat:appcompat:1.6.1'
+              implementation 'com.google.android.material:material:1.11.0'
+              implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+          }
+          EOF
+
+          # gradle.properties
+          cat > gradle.properties <<EOF
+          android.useAndroidX=true
+          android.enableJetifier=true
+          EOF
+
+          # gradle wrapper properties
+          cat > gradle/wrapper/gradle-wrapper.properties <<EOF
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
+          EOF
 
       - name: Generate Gradle Wrapper
         run: gradle wrapper --gradle-version 8.7
