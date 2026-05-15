@@ -45,8 +45,9 @@ jobs:
           echo '</resources>' >> app/src/main/res/values/strings.xml
 
           # placeholder launcher icons
-          touch app/src/main/res/mipmap-hdpi/ic_launcher.png
-          touch app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+          sed -i 's/android:icon="@mipmap\/ic_launcher"//g' app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:roundIcon="@mipmap\/ic_launcher_round"//g' app/src/main/AndroidManifest.xml || true
+          sed -i 's/android:label="@string\/app_name"/android:label="DiscountApp"/g' app/src/main/AndroidManifest.xml || true
 
           # settings.gradle
           echo "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }" > settings.gradle
